@@ -1,1 +1,1 @@
-# ibsimu_deploy
+# IBSIMU deploy pack for AWS installation
