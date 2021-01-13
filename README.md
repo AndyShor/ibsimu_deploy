@@ -7,8 +7,8 @@ Use as following.
 Use ibsimu_stack.json to create stack with CloudFormation. This version uses hardcoded AMI for Ubuntu 20.04 in eu-central-1 AZ.
 Replace AMI as well as auth key. Presently seciurity group allows inbound traffic on ports 22 and 5901 from any IP. 
 Feel free to be more restrictive. Bootstrapping will take several minutes even after you will be able to ssh to the instance.
-Using SCP transfer `install_ibsimu.sh`, v`nc_settings.sh`, and `vnc_setup.sh` to /home/ubuntu.
-Wait for bootstrapping to complete in the background under root (watch for 'bootstraping complete' in /diagnostics.log).
+Using SCP transfer `install_ibsimu.sh`, `vnc_settings.sh`, and `vnc_setup.sh` to `/home/ubuntu`.
+Wait for bootstrapping to complete in the background under root (watch for 'bootstraping complete' in `/diagnostics.log`).
 Change permissions of `install_ibsimu.sh` and `vnc_setup.sh` with `chmod +x`.
 Run `./install_ibsimu`, it will take several minutes with compilations and tests.
 Run `./vnc_setup`, to install and configure vnc server.
