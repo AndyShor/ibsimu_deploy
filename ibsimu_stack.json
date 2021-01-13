@@ -1,0 +1,153 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Description": "IBSIMU GUI stack",
+    "Parameters": {
+        "AMI": {
+            "Default": "ami-0502e817a62226e03",
+            "Description": "The Amazon Ubuntu 20.04 AMI",
+            "Type": "String"
+        },
+        "EBSVolumeSize": {
+            "Default": "20",
+            "Description": "The size of the EBS volume",
+            "Type": "String"
+        },
+        "InstanceName": {
+            "Default": "IBSIMU GUI instance",
+            "Description": "EC2 Instance Name",
+            "Type": "String"
+        },
+        "InstanceType": {
+            "AllowedValues": [
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type",
+            "Default": "t2.medium",
+            "Description": "EC2 instance type",
+            "Type": "String"
+        },
+        "KeyName": {
+            "ConstraintDescription": "Must be the name of an existing EC2 KeyPair.",
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to NAT instances.",
+            "Default": "ibsimu-test",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        }
+        
+    },
+    "Resources": {
+        "Instance": {
+            "Metadata": {
+                "AWS::CloudFormation::Init": {
+                    "config": {
+                        "packages": {
+                            "apt": {
+                                "awscli": [],
+                                "ruby": [],
+                                "unzip": []
+                                
+                            }
+                        },
+                        
+                        "commands": {
+                            "01update_pkgs": {
+                                "command": "apt-get update && apt-get upgrade -y"
+                            }
+                            
+                        }
+                    }
+                }
+            },
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "VolumeSize": {
+                                "Ref": "EBSVolumeSize"
+                            }
+                        }
+                    }
+                ],
+                "ImageId": {
+                    "Ref": "AMI"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "SecurityGroup"
+                    }
+                ],
+                
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "InstanceName"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe\n",
+                                "set -o errexit; set -o nounset; set -o pipefail\n",
+                                "add-apt-repository universe\n",
+                                "apt update\n",
+                                "apt-get install -y build-essential python-dev\n",
+                                "curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py\n",
+                                "python2 get-pip.py\n",
+                                "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+                                "/usr/local/bin/cfn-init --stack ", { "Ref":"AWS::StackName" },  " --region ", { "Ref": "AWS::Region" }," --resource Instance\n",
+                                "apt install -y libcairo2-dev libgsl-dev libgtk-3-dev automake libtool curl\n",
+                                "apt-get install -y build-essential\n",
+                                "apt-get install -y ubuntu-desktop tightvncserver gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal\n",
+                                "touch diagnostics.log\n",
+                                "whoami>> diagnostics.log\n",
+                                "echo \"bootstraping complete!\">> diagnostics.log \n"  
+                         
+
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+            },
+        "SecurityGroup": {
+            "Properties": {
+                "GroupDescription": "Allow SSH,  and vnc access",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "22",
+                        "IpProtocol": "tcp",
+                        "ToPort": "22"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "5901",
+                        "IpProtocol": "tcp",
+                        "ToPort": "5901"
+                    }
+                ]
+                
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        }
+    }
+}
