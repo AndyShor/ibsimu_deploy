@@ -17,4 +17,4 @@ SCP simple test case such as einzel lens, make sure that Makefile in the case re
 Make and run the case.
 
 
-A more in-depth explanation of what is going on during bootstraping (and why) is given in an upcoming blog post.
+A more in-depth explanation of what is going on during bootstraping (and why) is given in the blog [post](https://andrey-shornikov.medium.com/deploy-ibsimu-simulation-package-on-aws-4e843b8a6656).
