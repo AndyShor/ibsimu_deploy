@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # IBSIMU deploy pack for AWS installation with CloudFormation
 This is set of tools to create infrastructure on AWS, deploy IBSIMU and configure remote GUI use.
 
